@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ipplan-ingress
+  namespace: ipplan
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - ipplan.pgbank.com.vn
+      secretName: pgbank-tls
+  rules:
+    - host: ipplan.pgbank.com.vn
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ipplan
+                port:
+                  number: 5000

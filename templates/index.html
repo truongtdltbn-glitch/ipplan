@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IP Plan Manager</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="app">
+    <header class="header">
+        <div class="header-left">
+            <div class="logo"><svg width="36" height="36" viewBox="0 0 36 36"><rect width="36" height="36" rx="10" fill="url(#lg)"/><path d="M9 13h18M9 18h18M9 23h18M13 9v18M23 9v18" stroke="#fff" stroke-width="1.2" opacity=".5"/><circle cx="18" cy="18" r="4.5" fill="#fff" opacity=".9"/><defs><linearGradient id="lg" x1="0" y1="0" x2="36" y2="36"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#a855f7"/></linearGradient></defs></svg></div>
+            <div><h1>IP Plan Manager</h1><span class="sub">Quản lý IP theo VLAN</span></div>
+        </div>
+        <div class="header-right">
+            <div class="stats">
+                <div class="st"><span class="sv" id="s-vlans">0</span><span class="sl">VLANs</span></div>
+                <div class="st"><span class="sv" id="s-total">0</span><span class="sl">Tổng IP</span></div>
+                <div class="st sv-used"><span class="sv" id="s-used">0</span><span class="sl">Đã dùng</span></div>
+                <div class="st sv-free"><span class="sv" id="s-free">0</span><span class="sl">Trống</span></div>
+            </div>
+            <button class="btn ghost" id="btn-export" title="Xuất">⬇ Xuất</button>
+            <button class="btn ghost" id="btn-import" title="Nhập">⬆ Nhập</button>
+            <input type="file" id="file-import" accept=".json" hidden>
+            <button class="btn-icon" id="theme-toggle" title="Đổi giao diện">🌙</button>
+            <div class="user-menu">
+                <button class="btn-icon" id="user-btn" title="Tài khoản">👤</button>
+                <div class="user-dropdown" id="user-dropdown">
+                    <button class="dd-item" id="btn-change-pw">🔑 Đổi mật khẩu</button>
+                    <button class="dd-item dd-danger" id="btn-logout">🚪 Đăng xuất</button>
+                </div>
+            </div>
+        </div>
+    </header>
+    <main class="main">
+        <!-- Col 1: VLANs -->
+        <section class="col col-vlan">
+            <div class="col-head">
+                <div class="col-head-row">
+                    <div style="display:flex; justify-content:space-between; align-items:center; width:100%">
+                        <h2>🔌 VLAN</h2>
+                        <button class="btn primary sm" id="btn-add-vlan">+ Thêm</button>
+                    </div>
+                    <!-- Dummy inputs to catch browser auto-fill -->
+                    <input type="text" style="display:none"><input type="password" style="display:none">
+                    <input type="text" class="search" id="vlan-search" placeholder="🔍 Tìm VLAN..." autocomplete="new-password">
+                </div>
+            </div>
+            <div class="col-body" id="vlan-list"><div class="empty"><div class="empty-icon">🔌</div><p>Chưa có VLAN</p><span>Nhấn "Thêm VLAN" để bắt đầu</span></div></div>
+        </section>
+        <!-- Col 2: IP Table (inline edit) -->
+        <section class="col col-ip">
+            <div class="col-head">
+                <div class="col-head-row">
+                    <h2 id="ip-title">🌐 Danh sách IP</h2>
+                    <div class="toolbar-row">
+                        <div class="ftabs"><button class="ftab active" data-f="all">Tất cả</button><button class="ftab" data-f="used">Đã dùng</button><button class="ftab" data-f="free">Trống</button></div>
+                        <!-- Dummy inputs to catch browser auto-fill -->
+                        <input type="text" style="display:none"><input type="password" style="display:none">
+                        <input type="text" class="search" id="ip-search" placeholder="🔍 Tìm IP..." autocomplete="new-password">
+                    </div>
+                </div>
+            </div>
+            <div class="col-body ip-table-wrap" id="ip-list">
+                <div class="empty"><div class="empty-icon">🌐</div><p>Chọn VLAN</p><span>Chọn VLAN bên trái để xem IP</span></div>
+            </div>
+        </section>
+        <!-- Col 3: Detail -->
+        <section class="col col-detail">
+            <div class="col-head"><h2 id="detail-title">📋 Chi tiết</h2></div>
+            <div class="col-body" id="detail-panel">
+                <div class="empty" id="detail-empty"><div class="empty-icon">📋</div><p>Chọn IP</p><span>Nhấn vào IP để chỉnh sửa</span></div>
+                <div class="dform" id="dform" style="display:none">
+                    <div class="ip-hero"><span class="ip-addr" id="d-ip">-</span><span class="ip-dot" id="d-dot" title="Nhấn để đổi trạng thái"></span></div>
+                    
+                    <div class="fg"><label for="d-hostname">Hostname</label><input type="text" id="d-hostname" placeholder="Ví dụ: web-server-01"></div>
+                    <div class="fg"><label for="d-system">Hệ thống</label><input type="text" id="d-system" placeholder="Ví dụ: Billing, ERP..."></div>
+                    <div class="fg"><label for="d-owner">Người quản lý</label><input type="text" id="d-owner" placeholder="Ví dụ: Nguyễn Văn A"></div>
+                    <div class="fg"><label for="d-desc">Mô tả chi tiết</label><textarea id="d-desc" rows="4" placeholder="Ghi chú thêm về IP này..."></textarea></div>
+                    
+                    <div class="fg"><label>Cập nhật lần cuối</label><span class="meta" id="d-time">-</span></div>
+                    <div class="save-status" id="save-status">Đã lưu</div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+<!-- Modal: Add VLAN -->
+<div class="overlay" id="m-vlan"><div class="modal"><div class="mhead"><h3>Thêm VLAN mới</h3><button class="x" id="mx-vlan">&times;</button></div><div class="mbody">
+    <div class="fg"><label for="v-name">Tên VLAN *</label><input id="v-name" required placeholder="VLAN 10 - Server Farm"></div>
+    <div class="fg"><label for="v-id">VLAN ID</label><input type="number" id="v-id" placeholder="10" min="1" max="4094"></div>
+    <div class="fg"><label for="v-sub">Subnet *</label><input id="v-sub" required placeholder="10.0.1.0"></div>
+    <div class="fg"><label for="v-mask">Prefix</label><select id="v-mask"><option value="24">/24 (256 IPs)</option><option value="25">/25 (128 IPs)</option><option value="26">/26 (64 IPs)</option><option value="27">/27 (32 IPs)</option><option value="28">/28 (16 IPs)</option><option value="29">/29 (8 IPs)</option><option value="30">/30 (4 IPs)</option><option value="32">/32 (1 IP)</option></select></div>
+    <div class="fg"><label for="v-desc">Mô tả</label><textarea id="v-desc" rows="2" placeholder="Mô tả VLAN..."></textarea></div>
+</div><div class="mfoot"><button class="btn ghost" id="mc-vlan">Hủy</button><button class="btn primary" id="mk-vlan">Tạo VLAN</button></div></div></div>
+<!-- Modal: Delete VLAN -->
+<div class="overlay" id="m-del"><div class="modal sm"><div class="mhead"><h3>Xoá VLAN</h3><button class="x" id="mx-del">&times;</button></div><div class="mbody"><p>Xoá VLAN <strong id="del-name"></strong>?</p><p class="warn">Tất cả dữ liệu IP sẽ bị xoá vĩnh viễn.</p></div><div class="mfoot"><button class="btn ghost" id="mc-del">Hủy</button><button class="btn danger" id="mk-del">Xoá</button></div></div></div>
+<!-- Modal: Change Password -->
+<div class="overlay" id="m-pw"><div class="modal sm"><div class="mhead"><h3>🔑 Đổi mật khẩu</h3><button class="x" id="mx-pw">&times;</button></div><div class="mbody">
+    <div class="fg"><label for="pw-cur">Mật khẩu hiện tại</label><input type="password" id="pw-cur" placeholder="••••••••"></div>
+    <div class="fg"><label for="pw-new">Mật khẩu mới</label><input type="password" id="pw-new" placeholder="Tối thiểu 6 ký tự"></div>
+    <div class="fg"><label for="pw-confirm">Xác nhận mật khẩu mới</label><input type="password" id="pw-confirm" placeholder="Nhập lại mật khẩu mới"></div>
+</div><div class="mfoot"><button class="btn ghost" id="mc-pw">Hủy</button><button class="btn primary" id="mk-pw">Đổi mật khẩu</button></div></div></div>
+<div class="toasts" id="toasts"></div>
+<script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - IP Plan Manager</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0f; --bg2: #111118; --border: #222233;
+            --text: #e4e4ef; --text2: #9494ad; --text3: #5e5e76;
+            --accent: #6366f1; --accent2: #818cf8;
+            --red: #ef4444; --radius: 16px;
+            --font: 'Inter', -apple-system, sans-serif;
+        }
+        [data-theme="light"] {
+            --bg: #f2f2f7; --bg2: #ffffff; --border: #d1d1d6;
+            --text: #1c1c1e; --text2: #636366; --text3: #aeaeb2;
+            --accent: #5856d6; --accent2: #787aff;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        html, body { height:100%; }
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            display:flex; align-items:center; justify-content:center;
+            transition: background .5s cubic-bezier(.4,0,.2,1), color .5s cubic-bezier(.4,0,.2,1);
+        }
+        .login-container {
+            width:400px; max-width:90vw;
+            animation: slideUp .6s cubic-bezier(.34,1.56,.64,1);
+        }
+        @keyframes slideUp {
+            from { opacity:0; transform:translateY(40px) scale(.96); }
+            to { opacity:1; transform:translateY(0) scale(1); }
+        }
+        .login-logo {
+            text-align:center; margin-bottom:32px;
+        }
+        .login-logo svg { margin-bottom:16px; filter:drop-shadow(0 8px 24px rgba(99,102,241,.3)); }
+        .login-logo h1 { font-size:24px; font-weight:700; letter-spacing:-.03em; }
+        .login-logo p { color:var(--text2); font-size:14px; margin-top:4px; }
+        .login-card {
+            background:var(--bg2); border:1px solid var(--border);
+            border-radius:var(--radius); padding:32px;
+            box-shadow:0 8px 40px rgba(0,0,0,.2);
+            backdrop-filter:blur(20px);
+            transition: background .5s, border-color .5s, box-shadow .5s;
+        }
+        .fg { margin-bottom:20px; }
+        .fg label {
+            display:block; font-size:12px; font-weight:600;
+            color:var(--text2); text-transform:uppercase;
+            letter-spacing:.05em; margin-bottom:6px;
+        }
+        .fg input {
+            width:100%; padding:12px 16px; border:1px solid var(--border);
+            border-radius:12px; background:var(--bg); color:var(--text);
+            font-family:var(--font); font-size:15px; outline:none;
+            transition: all .3s cubic-bezier(.4,0,.2,1);
+        }
+        .fg input:focus {
+            border-color:var(--accent);
+            box-shadow:0 0 0 4px rgba(99,102,241,.15);
+            transform:translateY(-1px);
+        }
+        .btn-login {
+            width:100%; padding:14px; border:none; border-radius:12px;
+            background:linear-gradient(135deg, var(--accent), var(--accent2));
+            color:#fff; font-size:15px; font-weight:600;
+            font-family:var(--font); cursor:pointer;
+            transition: all .3s cubic-bezier(.34,1.56,.64,1);
+            position:relative; overflow:hidden;
+        }
+        .btn-login:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(99,102,241,.4); }
+        .btn-login:active { transform:translateY(0) scale(.98); }
+        .btn-login.loading { pointer-events:none; opacity:.7; }
+        .error-msg {
+            margin-top:16px; padding:10px 14px; border-radius:10px;
+            background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.2);
+            color:var(--red); font-size:13px; text-align:center;
+            display:none;
+            animation: shake .4s cubic-bezier(.36,.07,.19,.97);
+        }
+        @keyframes shake {
+            0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-8px)} 40%,80%{transform:translateX(8px)}
+        }
+        .error-msg.show { display:block; }
+        .theme-toggle {
+            position:fixed; top:20px; right:20px;
+            width:44px; height:44px; border-radius:50%;
+            border:1px solid var(--border); background:var(--bg2);
+            cursor:pointer; display:flex; align-items:center; justify-content:center;
+            font-size:20px; transition:all .3s cubic-bezier(.34,1.56,.64,1);
+        }
+        .theme-toggle:hover { transform:scale(1.1) rotate(15deg); }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" id="theme-toggle" title="Đổi giao diện">🌙</button>
+    <div class="login-container">
+        <div class="login-logo">
+            <svg width="56" height="56" viewBox="0 0 36 36"><rect width="36" height="36" rx="10" fill="url(#lg)"/><path d="M9 13h18M9 18h18M9 23h18M13 9v18M23 9v18" stroke="#fff" stroke-width="1.2" opacity=".5"/><circle cx="18" cy="18" r="4.5" fill="#fff" opacity=".9"/><defs><linearGradient id="lg" x1="0" y1="0" x2="36" y2="36"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#a855f7"/></linearGradient></defs></svg>
+            <h1>IP Plan Manager</h1>
+            <p>Đăng nhập để quản lý</p>
+        </div>
+        <div class="login-card">
+            <form id="login-form">
+                <div class="fg">
+                    <label for="username">Tên đăng nhập</label>
+                    <input type="text" id="username" placeholder="Admin" autocomplete="username" autofocus>
+                </div>
+                <div class="fg">
+                    <label for="password">Mật khẩu</label>
+                    <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn-login" id="btn-login">Đăng nhập</button>
+                <div class="error-msg" id="error-msg"></div>
+            </form>
+        </div>
+    </div>
+    <script>
+        // Theme
+        const saved = localStorage.getItem('ipplan-theme');
+        if (saved === 'light') { document.documentElement.setAttribute('data-theme','light'); document.getElementById('theme-toggle').textContent='☀️'; }
+        document.getElementById('theme-toggle').addEventListener('click', function(){
+            const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+            document.documentElement.setAttribute('data-theme', isLight?'':'light');
+            this.textContent = isLight?'🌙':'☀️';
+            localStorage.setItem('ipplan-theme', isLight?'dark':'light');
+        });
+        // Login
+        document.getElementById('login-form').addEventListener('submit', async function(e){
+            e.preventDefault();
+            const btn = document.getElementById('btn-login');
+            const err = document.getElementById('error-msg');
+            btn.classList.add('loading'); btn.textContent = 'Đang đăng nhập...';
+            err.classList.remove('show');
+            try {
+                const res = await fetch('/api/login', {
+                    method:'POST', headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({
+                        username: document.getElementById('username').value,
+                        password: document.getElementById('password').value
+                    })
+                });
+                const data = await res.json();
+                if (res.ok) { window.location.href = '/'; }
+                else { err.textContent = data.error || 'Đăng nhập thất bại'; err.classList.add('show'); }
+            } catch(ex) { err.textContent='Lỗi kết nối'; err.classList.add('show'); }
+            btn.classList.remove('loading'); btn.textContent='Đăng nhập';
+        });
+    </script>
+</body>
+</html>
